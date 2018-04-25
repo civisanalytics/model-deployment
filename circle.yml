@@ -1,0 +1,16 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
+    - docker build -t moddep .
+    - mkdir -p ~/docker; docker save moddep > ~/docker/image.tar
+
+test:
+  override:
+    - docker run moddep /bin/bash -c  "cd /mod-deploy && pip install flake8 && flake8 civisml_deploy"
+    - docker run -e MODEL_RUN_ID=3 -e MODEL_JOB_ID=4 moddep /bin/bash -c "pytest /mod-deploy/civisml_deploy"
