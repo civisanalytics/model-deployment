@@ -173,7 +173,7 @@ def get_model_dict():
     model_dict['n_users'] = n_users
     model_dict['diag_item_matrix'] = diag_item_matrix
     model_dict['user_item_columns'] = user_item_columns
-    model_dict['model_name'] = "Recommender file ID: {}".format(model_file_id)
+    model_dict['model_features'] = ['user']
 
     model_dict['method'] = 'predict'
     model_dict['model_target_columns'] = 'rating'
