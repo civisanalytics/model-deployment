@@ -10,7 +10,7 @@ botocore==1.5.38
 certifi==2017.7.27.1
 cffi==1.10.0
 chardet==3.0.4
-civis==1.8.0
+civis==1.8.1
 civisml-extensions==0.1.6
 click==6.7
 colorama==0.3.7
