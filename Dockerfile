@@ -7,6 +7,7 @@ RUN mkdir -p /var/log/spectrum
 ENV LOGPATH=/var/log/spectrum/spectrum.log
 
 RUN pip install civis==1.8.1
+RUN pip install muffnn==2.1.0
 RUN pip install civisml-extensions==0.1.6
 
 ADD . /mod-deploy
