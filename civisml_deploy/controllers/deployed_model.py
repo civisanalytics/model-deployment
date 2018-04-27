@@ -25,7 +25,7 @@ def index():
     str
         This returns the model's name, per CivisML.
     """
-    return send_from_directory('/static', 'index.html')
+    return send_from_directory(current_app.static_folder, 'index.html')
 
 
 @model_blueprint.route('/features', methods=['GET'])

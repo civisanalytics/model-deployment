@@ -14,7 +14,7 @@ def create_app():
     flask.Flask
         Instantiated Flask app.
     """
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     app.register_blueprint(model_blueprint)
 
     app.model_dict = get_model_dict()
