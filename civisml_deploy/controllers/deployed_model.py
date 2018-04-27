@@ -1,7 +1,7 @@
 from urllib.parse import parse_qs
 
 from flask import (Blueprint, current_app, jsonify, request,
-                   after_this_request, send_from_directory)
+                   after_this_request)
 import numpy as np
 import pandas as pd
 
@@ -25,7 +25,7 @@ def index():
     str
         This returns the model's name, per CivisML.
     """
-    return send_from_directory(current_app.static_folder, 'index.html')
+    return current_app.model_dict['model_name']
 
 
 @model_blueprint.route('/features', methods=['GET'])
