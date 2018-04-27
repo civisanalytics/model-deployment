@@ -174,6 +174,7 @@ def get_model_dict():
     model_dict['diag_item_matrix'] = diag_item_matrix
     model_dict['user_item_columns'] = user_item_columns
     model_dict['model_features'] = ['user']
+    model_dict['model_name'] = "File ID: {}".format(model_file_id)
 
     model_dict['method'] = 'predict'
     model_dict['model_target_columns'] = 'rating'
