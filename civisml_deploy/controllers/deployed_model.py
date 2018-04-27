@@ -17,13 +17,12 @@ model_blueprint = Blueprint('model_blueprint', __name__)
 @model_blueprint.route('/', methods=['GET'])
 def index():
     """The app's index page. An index page (even if blank) is required for
-    health checks on Platform. This index page dynamically generates form
-    fields based on the features endpoing.
+    health checks on Platform.
 
     Returns
     -------
     str
-        This returns the model's name, per CivisML.
+        This returns the model's file ID
     """
     return current_app.model_dict['model_name']
 
