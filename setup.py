@@ -9,7 +9,11 @@ def main():
 
     required = read('requirements.txt').strip().split()
 
-    setup(name="civisml_deploy",
+    __version__ = None
+    exec(read('civisml_deploy/_version.py'))
+
+    setup(version=__version__,
+          name="civisml_deploy",
           author="Civis Analytics Inc",
           author_email="dsrd@civisanalytics.com",
           url="https://www.civisanalytics.com",
