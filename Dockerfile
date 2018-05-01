@@ -6,6 +6,7 @@ EXPOSE 3838
 RUN mkdir -p /var/log/spectrum
 ENV LOGPATH=/var/log/spectrum/spectrum.log
 
+RUN pip install civis==1.9
 RUN pip install civisml-extensions==0.1.7
 RUN pip install muffnn==2.1.0
 
