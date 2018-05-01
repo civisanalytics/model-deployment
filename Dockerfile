@@ -6,6 +6,9 @@ EXPOSE 3838
 RUN mkdir -p /var/log/spectrum
 ENV LOGPATH=/var/log/spectrum/spectrum.log
 
+RUN pip install civis==1.8.1
+RUN pip install civisml-extensions==0.1.6
+
 ADD . /mod-deploy
 ADD civisml_deploy/static /static
 RUN cd /mod-deploy && python setup.py install
