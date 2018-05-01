@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.5
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build -t moddep .
+      - run: docker run moddep /bin/bash -c  "cd /mod-deploy && pip install flake8 && flake8 civisml_deploy"
+      - run: docker run -e MODEL_RUN_ID=3 -e MODEL_JOB_ID=4 moddep /bin/bash -c "pytest /mod-deploy/civisml_deploy"
