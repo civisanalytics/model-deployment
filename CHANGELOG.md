@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.0.0 2018-04-30
+Tagged first Docker image; declaring this to be version 1.0.0.
 
 ## 0.1.0 2018-04-24
 
