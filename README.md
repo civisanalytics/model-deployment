@@ -7,6 +7,19 @@ deployed in its own Kubernetes pod hosted on Civis Platform. A Jupyter notebook
 demonstrating how to train, deploy, and make requests of a deployed CivisML
 model can be found in the `examples/` directory.
 
+The version of CivisML that was used to train your model dictates which version
+of the model-deployment Docker image you should use when you deploy. The
+easiest way to check which model-deployment image you should use is to check
+which version of the Civis python API client your model was trained with. The
+below table tells you which image tag to use for a given version of the Civis
+python API client.
+
+| Model Deployment image tag | Civis python API client version | CivisML version |
+| -------------------------- | ------------------------------- | --------------- |
+| 1.0                        | 1.8                             | 2.1             |
+| 1.1                        | 1.9                             | 2.2             |
+
+
 ## Resources of the Deployed Model
 Once deployed, you will be able to make HTTP GET requests to three resources.
 The "/predict" endpoint is the one model consumers will be most concerned with.

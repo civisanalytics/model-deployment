@@ -1,4 +1,4 @@
-FROM civisanalytics/datascience-python:3.3.0
+FROM civisanalytics/datascience-python:4.0.1
 MAINTAINER support@civisanalytics.com
 
 EXPOSE 3838
@@ -6,8 +6,9 @@ EXPOSE 3838
 RUN mkdir -p /var/log/spectrum
 ENV LOGPATH=/var/log/spectrum/spectrum.log
 
-RUN pip install civis==1.8.1
-RUN pip install civisml-extensions==0.1.6
+RUN pip install civis==1.9
+RUN pip install civisml-extensions==0.1.7
+RUN pip install muffnn==2.1.0
 
 ADD . /mod-deploy
 ADD civisml_deploy/static /static

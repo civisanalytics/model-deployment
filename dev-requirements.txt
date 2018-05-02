@@ -1,2 +1,4 @@
 flake8
 pytest
+scipy==1.0.0
+scikit-learn==0.19.1
