@@ -1,5 +1,6 @@
-civis==1.8.1
+civis==1.9
 Flask==0.12.2
 gunicorn==19.7.1
 numpy==1.13.3
 pandas==0.22.0
+scikit-surprise==1.0.6
