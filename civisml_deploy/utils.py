@@ -1,45 +1,14 @@
 from datetime import datetime
-from io import StringIO
+from io import BytesIO, StringIO
 import logging
 import os
+import pickle
 
-from civis.ml import ModelPipeline
+from civis.io import civis_to_file
 import pandas as pd
 
 general_logger = logging.getLogger("civisml_deploy")
 CIVIS_SERVICE_VERSION = os.environ.get('CIVIS_SERVICE_VERSION')
-
-
-def _get_model_features(model_pipe):
-    """Get features from a `civis.ml.ModelPipeline`
-    """
-    model_features = []
-    target_cols = model_pipe.train_result_.metadata['data']['target_columns']
-    for feat in model_pipe.train_result_.metadata['data']['column_names_read']:
-        if feat not in target_cols:
-            model_features.append(feat)
-
-    return model_features
-
-
-def _fetch_civisml_model(job_id, run_id=None):
-    """Fetch a `civis.ml.ModelPipeline` given a job_id and optionally a run_id
-    """
-    if run_id is not None:
-        general_logger.debug('Fetching model with job_id %s and run_id %s...',
-                             job_id, run_id)
-        model_pipe = ModelPipeline.from_existing(train_job_id=job_id,
-                                                 train_run_id=run_id)
-    else:
-        general_logger.debug('Fetching latest run of model with job_id %s...',
-                             job_id)
-        model_pipe = ModelPipeline.from_existing(train_job_id=job_id)
-
-    model_features = _get_model_features(model_pipe)
-    model = model_pipe.estimator
-    general_logger.debug('model loaded.')
-
-    return model, model_pipe, model_features
 
 
 def setup_logs():
@@ -132,26 +101,25 @@ def output_analytics_log_columns(model_dict):
     general_logger.info(','.join(output_cols))
 
 
-def _get_target_columns(metadata):
-    """Given ModelPipeline metadata, construct the list of columns output by
-    the model's prediction method.
-    """
-    target_cols = []
-    if metadata['model']['type'] == 'classification':
-        # Deal with multilabel models, if necessary
-        if len(metadata['data']['target_columns']) > 1:
-            for i, col in enumerate(metadata['data']['target_columns']):
-                for cls in metadata['data']['class_names'][i]:
-                    target_cols.append(col + '_' + str(cls))
-        else:
-            col = metadata['data']['target_columns'][0]
-            for cls in metadata['data']['class_names']:
-                target_cols.append(col + '_' + str(cls))
-    else:
-        for col in metadata['data']['target_columns']:
-            target_cols.append(col)
+def _fetch_surprise_model(file_id):
+    general_logger.debug("Pulling model from Civis file %s", file_id)
 
-    return target_cols
+    # Get model
+    with BytesIO() as buf:
+        civis_to_file(file_id, buf)
+        buf.seek(0)
+        model = pickle.load(buf)
+
+    general_logger.debug('model loaded.')
+
+    # Get model name
+    client = civis.APIClient()
+    model_name = client.files.get(file_id)['name']
+
+    # Model features are always user id (uid) and item id (iid)
+    model_features = ['uid', 'iid']
+
+    return model, model_name, model_features
 
 
 def get_model_dict():
@@ -166,27 +134,16 @@ def get_model_dict():
         modeling job.
     """
     # Pull existing model
-    job_id = os.environ.get('MODEL_JOB_ID')
-    run_id = os.environ.get('MODEL_RUN_ID')
+    file_id = os.environ.get('MODEL_FILE_ID')
 
-    model, model_pipe, model_features = _fetch_civisml_model(job_id, run_id)
+    model, model_name, model_features = _fetch_surprise_model(file_id)
 
     model_dict = {}
+
     model_dict['model'] = model
-    model_dict['model_pipe'] = model_pipe
-    model_dict['model_name'] = model_pipe.model_name
+    model_dict['model_name'] = model_name
     model_dict['model_features'] = model_features
-
-    metadata = model_pipe.train_result_.metadata
-
-    # Get relevant prediction method
-    if metadata['model']['type'] == 'classification':
-        model_dict['method'] = 'predict_proba'
-    else:
-        model_dict['method'] = 'predict'
-
-    # Get target columns
-    model_dict['model_target_columns'] = _get_target_columns(metadata)
+    model_dict['model_target_columns'] = ['prediction']
 
     general_logger.debug("model_dict: \n%s", model_dict)
 
