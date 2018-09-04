@@ -33,52 +33,65 @@ def features():
 
 @model_blueprint.route('/predict', methods=['GET'])
 def predict():
-    """This defines the /predict endpoint for the deployed model. Covariates
-    are taken in as query parameters, and a CSV file is sent in reponse.
+    """This defines the /predict endpoint for the deployed model. A user ID and
+    item ID are taken in as query parameters, and a JSON is sent in reponse.
     """
     general_logger.debug('predict called')
-    input_df = _query_string_to_df(request.query_string)
+    input_dict = _query_string_to_dict(request.query_string)
 
-    general_logger.debug(input_df)
-    preds = np.atleast_2d(_predict(input_df, current_app.model_dict))
+    for k in input_dict:
+        if k not in current_app.model_dict['model_features']:
+            general_logger.info("Removing extraneous parameter '%s' from "
+                                "input.", k)
+            input_dict.pop(k)
 
-    pred_dict = {}
+    general_logger.debug(input_dict)
+
+    pred = current_app.model_dict['model'].predict(**input_dict)
     # Pack predictions into dict
-    for i, col in enumerate(current_app.model_dict['model_target_columns']):
-        pred_dict[col] = preds[:, i].tolist()
+    pred_dict = {}
+    pred_dict[current_app.model_dict['model_target_columns'][0]] = [pred.est]
 
     general_logger.debug('Writing preds to JSON: \n%s', pred_dict)
 
-    @after_this_request
-    def write_analytics(response):
-        log_inputs_outputs(input_df, preds, analytics_logger)
-        return response
+    _write_analytics(input_dict, pred.est, current_app)
 
     return jsonify(pred_dict)
 
 
-def _predict(df, model_dict):
-    """We break this function out separately to take advantage of memoization,
-    if that's something we'd like to add (see Flask-Cache docs for more).
+@model_blueprint.route('/predict_top_n', methods=['GET'])
+def predict_top_n():
+    """This defines the /predict_top_n endpoint for the deployed model. A user
+    ID 'uid' and desired number of recommendations 'n' are taken in as query
+    parameters, and a JSON is sent in reponse.
     """
-    df = df[model_dict['model_features']]
-    general_logger.debug('Input covariate df: %s', df)
+    general_logger.debug('predict_top_n called')
+    input_dict = _query_string_to_dict(request.query_string)
 
-    preds = getattr(model_dict['model'], model_dict['method'])(df)
-
-    # Multioutput classifiers return lists, rather than np.arrays
-    if isinstance(preds, list):
-        preds = np.hstack(preds)
-
-    return preds
+    # LOOP OVER model.trainset.all_items()
+    return jsonify({})
 
 
-def _query_string_to_df(query_string):
+def _write_analytics(input_dict, preds, current_app):
+    preds = np.atleast_2d(preds)
+
+    input_df = pd.DataFrame(input_dict, index=range(preds.shape[0]))
+    # Ensure columns are in appropriate order
+    log_inputs_outputs(input_df[current_app.model_dict['model_features']],
+                       preds, analytics_logger)
+
+
+def _query_string_to_dict(query_string):
     """Parse query string and plug it into a `pd.DataFrame`.
     """
-    qs_dict = parse_qs(query_string.decode('utf-8'))
-    qs_dict.pop('civis_service_token', None)
+    raw_qs_dict = parse_qs(query_string.decode('utf-8'))
+    raw_qs_dict.pop('civis_service_token', None)
+
+    qs_dict = {}
+    # Take 0th item of single-entry lists returned by parse_qs
+    for k, v in raw_qs_dict.items():
+        qs_dict[k] = v[0]
 
     general_logger.debug('query string (token removed, if passed): %s',
                          qs_dict)
-    return pd.DataFrame(qs_dict, index=range(1))
+    return qs_dict

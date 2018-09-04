@@ -4,6 +4,7 @@ import logging
 import os
 import pickle
 
+import civis
 from civis.io import civis_to_file
 import pandas as pd
 
