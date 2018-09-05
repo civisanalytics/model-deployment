@@ -1,8 +1,8 @@
+from collections import OrderedDict
 from urllib.parse import parse_qs
 
 from flask import Blueprint, current_app, jsonify, \
-    request, after_this_request, \
-    send_from_directory
+    request, send_from_directory
 import numpy as np
 import pandas as pd
 
@@ -67,9 +67,22 @@ def predict_top_n():
     """
     general_logger.debug('predict_top_n called')
     input_dict = _query_string_to_dict(request.query_string)
+    maxN = int(input_dict["n"])
 
-    # LOOP OVER model.trainset.all_items()
-    return jsonify({})
+    model = current_app.model_dict['model']
+    rating_dict = {}
+
+    # Loop over model.trainset.all_items(), convert to raw IDs, and predict
+    for item in model.trainset.all_items():
+        raw_item = model.trainset.to_raw_iid(item)
+        rating_dict[raw_item] = model.predict(uid=input_dict["uid"],
+                                              iid=raw_item).est
+
+    # Sort predictions and get top N items
+    preds = sorted(rating_dict.items(), key=lambda kv: kv[1], reverse=True)
+    preds = preds[:maxN]
+
+    return jsonify(preds)
 
 
 def _write_analytics(input_dict, preds, current_app):
