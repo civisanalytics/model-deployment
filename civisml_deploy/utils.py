@@ -2,10 +2,10 @@ from datetime import datetime
 from io import BytesIO, StringIO
 import logging
 import os
-import pickle
 
 import civis
 from civis.io import civis_to_file
+import joblib
 import pandas as pd
 
 general_logger = logging.getLogger("civisml_deploy")
@@ -109,7 +109,7 @@ def _fetch_surprise_model(file_id):
     with BytesIO() as buf:
         civis_to_file(file_id, buf)
         buf.seek(0)
-        model = pickle.load(buf)
+        model = joblib.load(buf)
 
     general_logger.debug('model loaded.')
 
