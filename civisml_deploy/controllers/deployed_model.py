@@ -63,7 +63,8 @@ def predict():
 def predict_top_n():
     """This defines the /predict_top_n endpoint for the deployed model. A user
     ID 'uid' and desired number of recommendations 'n' are taken in as query
-    parameters, and a JSON is sent in reponse.
+    parameters, and a JSON is sent in reponse containing the item ID and rating
+    prediction for each of the top n recommendations.
     """
     general_logger.debug('predict_top_n called')
     input_dict = _query_string_to_dict(request.query_string)
