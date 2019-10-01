@@ -1,5 +1,5 @@
 civis==1.8.1
-Flask==0.12.2
 gunicorn==19.7.1
 numpy==1.13.3
 pandas==0.22.0
+Flask>=1.0.0,<1.1
