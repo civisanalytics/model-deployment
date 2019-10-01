@@ -1,6 +1,6 @@
+werkzeug>=0.15.0
 civis==1.8.1
-Flask>=1.1.1
 gunicorn==19.7.1
 numpy==1.13.3
 pandas==0.22.0
-werkzeug>=0.15.0
+Flask>=1.1.1
