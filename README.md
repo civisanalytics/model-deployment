@@ -1,3 +1,7 @@
+# Maintenance
+
+❗ This project is released as-is, and is not actively maintained by Civis Analytics.
+
 # CivisML Model Deployment
 This repository contains the source code for a python Flask app that enables
 users to deploy machine learning models built in
